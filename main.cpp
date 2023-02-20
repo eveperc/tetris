@@ -1,17 +1,12 @@
-#include <algorithm>
-#include <chrono>
-#include <cstdlib>
 #include <fcntl.h>
 #include <iostream>
 #include <mutex>
-#include <random>
-#include <stdlib.h>
 #include <termios.h>
 #include <thread>
 #include <unistd.h>
-#include <vector>
 
 #include "game.h"
+#include "controller.h"
 
 using namespace std;
 
@@ -64,6 +59,14 @@ void key(Game &game) {
       case 'd':
         move(game.pos.x + 1, game.pos.y);
         break;
+      case 'x':
+        rotateRight(game);
+        draw(game);
+        break;
+      case 'z':
+        rotateLeft(game);
+        draw(game);
+        break;
       default:
         break;
       }
@@ -84,8 +87,8 @@ void views(Game &game) {
       // stop block
       fixBlock(game);
       eraseLine(game);
-      game.pos = Position{};
-      game.block = randomBlock();
+      if(!spawnBlock(game))
+        gameover(game);
     }
     draw(game);
   }
