@@ -37,8 +37,6 @@ int kbhit(void) {
 }
 
 void key(Game &game) {
-  // auto fieldBuf = field;
-  // auto posBuf = pos;
   while (1) {
     if (kbhit()) {
       auto move = [&](int a, int b) -> void {
@@ -76,15 +74,12 @@ void key(Game &game) {
 }
 
 void views(Game &game) {
-  // thread::spawn
   while (1) {
     this_thread::sleep_for(chrono::seconds(1));
-    // create field
     auto newPos = Position{game.pos.x, game.pos.y + 1};
     if (!isCollision(game.field, newPos, game.block))
       game.pos = newPos;
     else {
-      // stop block
       fixBlock(game);
       eraseLine(game);
       if(!spawnBlock(game))
@@ -96,9 +91,7 @@ void views(Game &game) {
 
 int main() {
   auto game = Game{};
-  // clear display
   cout << "\x1B[2J\x1b[H\x1b[?25l" << endl;
-  // view field
   draw(game);
   try {
     thread t1(views, ref(game));
