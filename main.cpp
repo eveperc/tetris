@@ -1,40 +1,14 @@
-#include <fcntl.h>
 #include <iostream>
 #include <mutex>
-#include <termios.h>
 #include <thread>
-#include <unistd.h>
 
-#include "game.h"
 #include "controller.h"
+#include "block.h"
+#include "game.h"
 
 using namespace std;
 
 mutex m;
-
-int kbhit(void) {
-  struct termios oldt, newt;
-  int ch;
-  int oldf;
-
-  tcgetattr(STDIN_FILENO, &oldt);
-  newt = oldt;
-  newt.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-  ch = getchar();
-
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-  fcntl(STDIN_FILENO, F_SETFL, oldf);
-
-  if (ch != EOF) {
-    ungetc(ch, stdin);
-    return 1;
-  }
-  return 0;
-}
 
 void key(Game &game) {
   while (1) {
@@ -46,8 +20,13 @@ void key(Game &game) {
       };
       switch (getchar()) {
       case 'q':
-        cout << "\x1B[?25h" << endl;
-        exit(0);
+        quit();
+      case 'w':
+        hardDrop(game);
+        if (!landing(game)){
+          gameover(game);
+        }
+        break;
       case 'a':
         move(game.pos.x - 1, game.pos.y);
         break;
@@ -80,9 +59,7 @@ void views(Game &game) {
     if (!isCollision(game.field, newPos, game.block))
       game.pos = newPos;
     else {
-      fixBlock(game);
-      eraseLine(game);
-      if(!spawnBlock(game))
+      if (!landing(game))
         gameover(game);
     }
     draw(game);
@@ -91,7 +68,7 @@ void views(Game &game) {
 
 int main() {
   auto game = Game{};
-  cout << "\x1B[2J\x1b[H\x1b[?25l" << endl;
+  cout << clearDisplay << endl;
   draw(game);
   try {
     thread t1(views, ref(game));
@@ -100,8 +77,7 @@ int main() {
     t2.join();
   } catch (exception &ex) {
     cerr << ex.what() << endl;
+    quit();
   }
-  cout << "\x1B[?25h" << endl;
-
   return 0;
 }

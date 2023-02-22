@@ -6,4 +6,5 @@
 
 void rotateRight(Game &game);
 void rotateLeft(Game &game);
+int kbhit(void);
 #endif
