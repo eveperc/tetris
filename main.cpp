@@ -44,6 +44,10 @@ void key(Game &game) {
         rotateLeft(game);
         draw(game);
         break;
+      case ' ':
+        hold(game);
+        draw(game);
+        break;
       default:
         break;
       }

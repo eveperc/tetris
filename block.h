@@ -4,6 +4,7 @@
 #include <array>
 #include <string>
 #include <vector>
+#include <deque>
 using namespace std;
 
 namespace BlockKind {
@@ -18,6 +19,8 @@ constexpr int J = 7;
 constexpr int L = 8;
 constexpr int T = 9;
 };
+
+constexpr int BLOCK_KIND_MAX = 7;
 
 namespace ColorTable {
 const array<basic_string<char>, 10> COLOR_TABLE = {
@@ -39,7 +42,7 @@ int randomBlock();
 using BlockShape = vector<array<int,4>>;
 using namespace BlockKind;
 
-const BlockShape BLOCKS[7] = {
+const BlockShape BLOCKS[BLOCK_KIND_MAX] = {
     //I Block
     {
         {0, 0, 0, 0},
@@ -90,4 +93,6 @@ const BlockShape BLOCKS[7] = {
         {0, 0, 0, 0},
     },
 };
+
+deque<BlockShape> genBlock();
 #endif

@@ -33,6 +33,27 @@ void draw(Game &game) {
         fieldBuf[y + game.pos.y][x + game.pos.x] = game.block[y][x];
     }
   }
+  cout << moveCursorToHold << endl;
+  if (game.hold.has_value()) {
+    for (auto y = 0; y < 4; ++y) {
+      cout << moveCursorStart << (y + 3) << moveCursorEnd;
+      for (auto x = 0; x < 4; ++x) {
+        cout << COLOR_TABLE[game.hold.value()[y][x]];
+      }
+    }
+  }
+  cout << moveCursorToNext << endl;
+  int index = 0;
+  for (auto v : game.next) {
+    for (auto y = 0; y < 4; ++y) {
+      cout << moveCursorStart << (index * 4 + y + 9) << moveCursorEnd;
+      for (auto x = 0; x < 4; ++x) {
+        cout << COLOR_TABLE[v[y][x]];
+      }
+      cout << endl;
+    }
+    ++index;
+  }
   cout << moveCursorToTop << endl;
   for (auto y = 0; y < FIELD_HEIGHT - 1; ++y) {
     for (auto x = 1; x < FIELD_WIDTH - 1; ++x) {
@@ -40,7 +61,9 @@ void draw(Game &game) {
     }
     cout << endl;
   }
+  cout << resetColor;
 }
+
 void hardDrop(Game &game) {
   while (1) {
     auto newPos = Position{game.pos.x, game.pos.y + 1};
@@ -63,9 +86,22 @@ bool isCollision(Field &field, Position &pos, BlockShape &block) {
   return false;
 }
 
+void hold(Game &game) {
+  if (game.holded)
+    return;
+  if (game.hold.has_value()) {
+    swap(game.hold.value(), game.block);
+    game.pos = Position{};
+  } else {
+    game.hold = game.block;
+    spawnBlock(game);
+  }
+}
+
 bool landing(Game &game) {
   fixBlock(game);
   eraseLine(game);
+  game.holded = false;
   return spawnBlock(game);
 }
 
@@ -98,7 +134,14 @@ void eraseLine(Game &game) {
 
 bool spawnBlock(Game &game) {
   game.pos = Position{};
-  game.block = BLOCKS[randomBlock()];
+  game.block = game.next.front();
+  game.next.pop_front();
+  game.next.push_back(BLOCKS[randomBlock()]);
+  if (game.nextBuf.empty())
+    game.nextBuf = genBlock();
+  game.next.push_back(game.nextBuf.front());
+  game.nextBuf.pop_front();
+  // デバッグ表示
   if (isCollision(game.field, game.pos, game.block))
     return false;
   else

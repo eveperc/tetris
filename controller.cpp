@@ -1,7 +1,9 @@
-#include <fcntl.h>
-#include <termios.h>
-#include <unistd.h>
 #include "controller.h"
+#include <fcntl.h>
+#include <mutex>
+#include <termios.h>
+#include <type_traits>
+#include <unistd.h>
 
 using namespace std;
 int kbhit(void) {
@@ -28,6 +30,23 @@ int kbhit(void) {
   return 0;
 }
 
+bool checkedSub() { return false; }
+
+tuple<bool, Position> superRotation(Field &field, Position &pos,
+                                    BlockShape &block) {
+  Position diffPos[4] = {
+      Position{pos.x, pos.y - 1},
+      Position{pos.x + 1, pos.y},
+      Position{pos.x, pos.y + 1},
+      Position{pos.x - 1, pos.y},
+  };
+  for (auto p : diffPos) {
+    if (!isCollision(field, p, block))
+      return forward_as_tuple(true, p);
+  }
+  return forward_as_tuple(false, pos);
+}
+
 void rotateRight(Game &game) {
   auto newShape = game.block;
   for (auto y = 0; y < 4; ++y) {
@@ -37,6 +56,13 @@ void rotateRight(Game &game) {
   }
   if (!isCollision(game.field, game.pos, newShape))
     game.block = newShape;
+  else {
+    auto [b, pos] = superRotation(game.field, game.pos, newShape);
+    if(b){
+      game.pos = pos;
+      game.block = newShape;
+    }
+  }
 }
 
 void rotateLeft(Game &game) {
@@ -48,4 +74,11 @@ void rotateLeft(Game &game) {
   }
   if (!isCollision(game.field, game.pos, newShape))
     game.block = newShape;
+  else {
+    auto [b, pos] = superRotation(game.field, game.pos, newShape);
+    if(b){
+      game.pos = pos;
+      game.block = newShape;
+    }
+  }
 }
