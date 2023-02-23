@@ -45,6 +45,8 @@ void draw(Game &game) {
   cout << moveCursorToNext << endl;
   int index = 0;
   for (auto v : game.next) {
+    if(index == NEXT_LENGTH)
+      break;
     for (auto y = 0; y < 4; ++y) {
       cout << moveCursorStart << (index * 4 + y + 9) << moveCursorEnd;
       for (auto x = 0; x < 4; ++x) {

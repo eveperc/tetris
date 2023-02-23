@@ -73,6 +73,8 @@ void views(Game &game) {
 int main() {
   auto game = Game{};
   cout << clearDisplay << endl;
+  if(!spawnBlock(game))
+    quit();
   draw(game);
   try {
     thread t1(views, ref(game));

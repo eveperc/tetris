@@ -18,7 +18,7 @@ deque<BlockShape> genBlock(){
   shuffle(que.begin(),que.end(),mt);
   deque<BlockShape> blocks;
   for (auto i:que){
-    blocks.push_back(BLOCKS[i]);
+    blocks.push_back(BLOCKS[i-3]);
   }
   return blocks;
 }
