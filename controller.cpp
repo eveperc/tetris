@@ -1,12 +1,11 @@
 #include "controller.h"
 #include <fcntl.h>
-#include <mutex>
 #include <termios.h>
-#include <type_traits>
 #include <unistd.h>
+#include <stdio.h>
 
 using namespace std;
-int kbhit(void) {
+int kbhit() {
   struct termios oldt, newt;
   int ch;
   int oldf;
@@ -16,7 +15,7 @@ int kbhit(void) {
   newt.c_lflag &= ~(ICANON | ECHO);
   tcsetattr(STDIN_FILENO, TCSANOW, &newt);
   oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+  // fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
 
   ch = getchar();
 

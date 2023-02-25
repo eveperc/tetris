@@ -2,13 +2,11 @@
 #include <mutex>
 #include <thread>
 
-#include "controller.h"
 #include "block.h"
+#include "controller.h"
 #include "game.h"
 
 using namespace std;
-
-mutex m;
 
 void key(Game &game) {
   while (1) {
@@ -23,7 +21,7 @@ void key(Game &game) {
         quit();
       case 'w':
         hardDrop(game);
-        if (!landing(game)){
+        if (!landing(game)) {
           gameover(game);
         }
         break;
@@ -59,21 +57,24 @@ void key(Game &game) {
 void views(Game &game) {
   while (1) {
     this_thread::sleep_for(chrono::seconds(1));
-    auto newPos = Position{game.pos.x, game.pos.y + 1};
-    if (!isCollision(game.field, newPos, game.block))
-      game.pos = newPos;
-    else {
-      if (!landing(game))
-        gameover(game);
+    {
+      scoped_lock lock{game.m};
+      auto newPos = Position{game.pos.x, game.pos.y + 1};
+      if (!isCollision(game.field, newPos, game.block))
+        game.pos = newPos;
+      else {
+        if (!landing(game))
+          gameover(game);
+      }
+      draw(game);
     }
-    draw(game);
   }
 }
 
 int main() {
   auto game = Game{};
   cout << clearDisplay << endl;
-  if(!spawnBlock(game))
+  if (!spawnBlock(game))
     quit();
   draw(game);
   try {

@@ -1,5 +1,4 @@
 #include "game.h"
-
 #include <iostream>
 using namespace std;
 using namespace BlockKind;
@@ -18,7 +17,6 @@ Position ghostPosition(Game &game) {
 }
 // view Field
 void draw(Game &game) {
-  // scoped_lock lock{m};
   auto fieldBuf = game.field;
   auto ghost = ghostPosition(game);
   for (auto y = 0; y < 4; ++y) {
@@ -56,6 +54,7 @@ void draw(Game &game) {
     }
     ++index;
   }
+  cout << moveCursorScore << game.score;
   cout << moveCursorToTop << endl;
   for (auto y = 0; y < FIELD_HEIGHT - 1; ++y) {
     for (auto x = 1; x < FIELD_WIDTH - 1; ++x) {
@@ -102,7 +101,8 @@ void hold(Game &game) {
 
 bool landing(Game &game) {
   fixBlock(game);
-  eraseLine(game);
+  auto line = eraseLine(game);
+  game.score += SCORE_TABLE[line];
   game.holded = false;
   return spawnBlock(game);
 }
@@ -116,7 +116,8 @@ void fixBlock(Game &game) {
   }
 }
 
-void eraseLine(Game &game) {
+int eraseLine(Game &game) {
+  auto count = 0;
   for (auto y = 1; y < FIELD_HEIGHT - 2; ++y) {
     auto canErase = true;
     for (auto x = 1; x < FIELD_WIDTH - 2; ++x) {
@@ -126,12 +127,14 @@ void eraseLine(Game &game) {
       }
     }
     if (canErase) {
+      count += 1;
       for (auto y2 = 0; y2 <= y - 2; ++y2) {
         const auto y2rev = y - y2;
         game.field[y2rev] = game.field[y2rev - 1];
       }
     }
   }
+  return count;
 }
 
 bool spawnBlock(Game &game) {
