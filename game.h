@@ -9,7 +9,7 @@
 
 #include "block.h"
 using namespace std;
-constexpr int W = BlockKind::WALL;
+constexpr unsigned int W = BlockKind::WALL;
 
 constexpr auto showCursor = "\x1B[?25h";
 constexpr auto moveCursorToTop = "\x1b[H";
@@ -22,21 +22,21 @@ constexpr auto resetColor = "\x1b[0m";
 constexpr auto moveCursorScore = "\x1b[22;28H";
 
 // Field Size
-constexpr int FIELD_WIDTH = 11 + 2 + 2;
-constexpr int FIELD_HEIGHT = 20 + 1 + 1;
-using Field = vector<array<int, 22>>;
+constexpr unsigned int FIELD_WIDTH = 11 + 2 + 2;
+constexpr unsigned int FIELD_HEIGHT = 20 + 1 + 1;
+using Field = vector<array<unsigned int, 22>>;
 
 struct Position {
-  int x;
-  int y;
+  unsigned int x;
+  unsigned int y;
 
-  Position(int a = 5, int b = 0) {
+  Position(unsigned int a = 5,unsigned int b = 0) {
     this->x = a;
     this->y = b;
   }
 };
-const array<int, 5> SCORE_TABLE = {0, 1, 5, 25, 100};
-constexpr int NEXT_LENGTH = 3;
+const array<unsigned int, 5> SCORE_TABLE = {0, 1, 5, 25, 100};
+constexpr unsigned int NEXT_LENGTH = 3;
 struct Game {
   Field field;
   Position pos;
@@ -45,7 +45,8 @@ struct Game {
   bool holded;
   deque<BlockShape> next;
   deque<BlockShape> nextBuf;
-  int score;
+  unsigned int score;
+  unsigned int line;
   mutex m;
 
   Game() {
@@ -80,6 +81,7 @@ struct Game {
     next = genBlock();
     nextBuf = genBlock();
     score = 0;
+    line = 0;
   }
 };
 

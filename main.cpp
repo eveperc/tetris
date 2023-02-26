@@ -11,7 +11,7 @@ using namespace std;
 void key(Game &game) {
   while (1) {
     if (kbhit()) {
-      auto move = [&](int a, int b) -> void {
+      auto move = [&](unsigned int a, unsigned int b) -> void {
         auto newPos = Position{a, b};
         if (!isCollision(game.field, newPos, game.block))
           game.pos = newPos;
@@ -56,7 +56,13 @@ void key(Game &game) {
 
 void views(Game &game) {
   while (1) {
-    this_thread::sleep_for(chrono::seconds(1));
+    auto sleepMsec = [&]() {
+      auto result = 1000 - (game.line/10*100) < 0
+        ? game.line
+        : 100;
+      return result/10 * 100;
+    }();
+    this_thread::sleep_for(chrono::milliseconds(sleepMsec));
     {
       scoped_lock lock{game.m};
       auto newPos = Position{game.pos.x, game.pos.y + 1};

@@ -103,6 +103,7 @@ bool landing(Game &game) {
   fixBlock(game);
   auto line = eraseLine(game);
   game.score += SCORE_TABLE[line];
+  game.line += line;
   game.holded = false;
   return spawnBlock(game);
 }
